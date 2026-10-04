@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Code Quantum</title>
+<meta name="theme-color" content="#156082">
+<meta name="color-scheme" content="light">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Code Quantum">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<main class="card">
+  <header class="top">
+    <span class="titre">Code Quantum</span>
+    <button class="sync" id="sync" type="button"></button>
+  </header>
+
+  <!-- Connexion (mode partagé Firebase) -->
+  <section id="v-login" class="vue" hidden>
+    <p class="login-txt">Connectez-vous avec votre compte Google pour accéder aux heures partagées.</p>
+    <button class="btn" id="btn-login" type="button">Se connecter avec Google</button>
+    <p class="msg-erreur" id="login-err"></p>
+  </section>
+
+  <!-- Saisie -->
+  <section id="v-saisie" class="vue" hidden>
+    <div class="ligne-date">
+      <div class="boite boite-jm">
+        <div class="wheel w-jour" id="w-jour" aria-label="Jour"></div>
+        <div class="wheel w-mois" id="w-mois" aria-label="Mois"></div>
+      </div>
+      <div class="boite boite-an">
+        <div class="wheel w-an" id="w-an" aria-label="Année"></div>
+      </div>
+    </div>
+    <p class="deja" id="deja"></p>
+
+    <div class="ligne-switch" id="ligne-sens">
+      <label for="sw-sens" class="lbl">Arrivée</label>
+      <button class="switch on" id="sw-sens" role="switch" aria-checked="true" type="button" aria-label="Arrivée ou départ"><span></span></button>
+      <label for="sw-sens" class="lbl">Départ</label>
+    </div>
+
+    <div class="ligne-heure" id="ligne-heure">
+      <div class="boite"><div class="wheel w-h" id="w-h" aria-label="Heures"></div></div>
+      <span class="sep-h">H</span>
+      <div class="boite"><div class="wheel w-min" id="w-min" aria-label="Minutes"></div></div>
+    </div>
+
+    <div class="ligne-switch ligne-conge">
+      <span class="lbl"></span>
+      <button class="switch" id="sw-conge" role="switch" aria-checked="false" type="button" aria-label="Congé"><span></span></button>
+      <label for="sw-conge" class="lbl">Congé</label>
+    </div>
+
+    <details class="note" id="note-box">
+      <summary>Ajouter une note</summary>
+      <input type="text" id="note" maxlength="60" placeholder="ex. Rentrée, Manif">
+    </details>
+
+    <div class="ligne-bas">
+      <button class="lien" id="btn-histo" type="button">Consulter<br>Historique</button>
+      <button class="btn" id="btn-valider" type="button">Valider</button>
+    </div>
+  </section>
+
+  <!-- Historique -->
+  <section id="v-histo" class="vue" hidden>
+    <div class="histo-nav">
+      <button class="lien" id="btn-retour" type="button">‹ Saisie</button>
+      <div class="mois-nav">
+        <button class="rond" id="m-prec" type="button" aria-label="Mois précédent">‹</button>
+        <strong id="m-titre"></strong>
+        <button class="rond" id="m-suiv" type="button" aria-label="Mois suivant">›</button>
+      </div>
+    </div>
+    <div class="tuiles" id="tuiles"></div>
+    <p class="anomalies" id="anomalies"></p>
+    <div class="jours" id="jours"></div>
+    <div class="actions">
+      <button class="btn" id="btn-export" type="button">Exporter l'Excel du mois</button>
+      <div class="actions-sec">
+        <label class="lien" for="f-modele" id="lbl-modele">Modèle Excel</label>
+        <input type="file" id="f-modele" accept=".xlsx" hidden>
+        <button class="lien" id="btn-backup" type="button">Sauvegarde (JSON)</button>
+        <label class="lien" for="f-import">Restaurer</label>
+        <input type="file" id="f-import" accept=".json,application/json" hidden>
+        <button class="lien" id="btn-logout" type="button" hidden>Se déconnecter</button>
+      </div>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

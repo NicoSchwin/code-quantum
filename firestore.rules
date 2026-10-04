@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Seuls les deux comptes Google ci-dessous peuvent lire et écrire.
+    // Remplacez les adresses, puis publiez dans Firebase > Firestore > Règles.
+    function autorise() {
+      return request.auth != null
+        && request.auth.token.email_verified
+        && request.auth.token.email in ['ADRESSE1@gmail.com', 'ADRESSE2@gmail.com'];
+    }
+    match /entrees/{jour} {
+      allow read, write: if autorise() && jour.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+    }
+    match /parametres/{doc} {
+      allow read, write: if autorise();
+    }
+  }
+}
