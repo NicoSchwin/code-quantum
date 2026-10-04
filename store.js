@@ -19,6 +19,7 @@ export const store = {
   get entries() { return entries; },
   onChange(fn) { listeners.add(fn); return () => listeners.delete(fn); },
   async save(key, patch) { return impl.save(key, patch); },
+  async remove(key) { return impl.remove(key); },
   async replaceAll(data) { return impl.replaceAll(data); },
   async getModele() { return impl.getModele(); },
   async setModele(m) { return impl.setModele(m); },
@@ -38,6 +39,7 @@ function localImpl() {
       entries = { ...entries, [key]: { ...(entries[key] || {}), ...patch, majLe: new Date().toISOString() } };
       persist(); emit();
     },
+    async remove(key) { const { [key]: _, ...rest } = entries; entries = rest; persist(); emit(); },
     async replaceAll(data) { entries = { ...entries, ...data }; persist(); emit(); },
     async getModele() { try { return JSON.parse(localStorage.getItem(LS_MODELE)); } catch { return null; } },
     async setModele(m) { localStorage.setItem(LS_MODELE, JSON.stringify(m)); },
@@ -88,6 +90,7 @@ async function firebaseImpl() {
       fs.setDoc(fs.doc(col, key), { ...patch, majPar: store.user?.email || '', majLe: fs.serverTimestamp() },
         { merge: true }).catch((e) => console.error(e));
     },
+    async remove(key) { fs.deleteDoc(fs.doc(col, key)).catch((e) => console.error(e)); },
     // Modèle Excel : stocké dans la base (protégée par les règles), jamais publié
     async getModele() {
       const d = await fs.getDoc(fs.doc(db, 'parametres', 'modele'));
@@ -106,6 +109,9 @@ async function firebaseImpl() {
 }
 
 export async function initStore() {
+  // Demande au navigateur de ne pas purger les données de l'appli (session,
+  // cache hors-ligne) quand l'espace manque
+  try { await navigator.storage?.persist?.(); } catch { /* non supporté */ }
   const configured = Object.keys(firebaseConfig).length > 0;
   if (configured) {
     store.mode = 'firebase';

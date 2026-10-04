@@ -7,6 +7,7 @@ import { buildMonthlyXlsx, lireModele } from './excel.js';
 const MOIS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août',
   'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 const JOURS = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+const JOURS_L = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
 const $ = (id) => document.getElementById(id);
 
 // ---------- Molette ----------
@@ -101,7 +102,13 @@ function defaultTimeForSelection() {
   setTime(e?.[champ] || heureDefaut[champ]);
 }
 
+function renderJourSemaine() {
+  const d = new Date(wAn.value, wMois.value - 1, wJour.value);
+  $('jour-sem').textContent = JOURS_L[d.getDay()];
+}
+
 function onDateChange() {
+  renderJourSemaine();
   const e = store.entries[selKey()];
   state.conge = !!e?.conge;
   setSwitch($('sw-conge'), state.conge);
@@ -231,14 +238,29 @@ function renderHisto() {
     }
     if (e?.note) mid += `<span class="n">${esc(e.note)}</span>`;
     const cls = ['jour', wd === 0 || wd === 6 ? 'we' : '', fer.has(k) ? 'ferie' : ''].join(' ');
-    sem += `<button class="${cls}" data-k="${k}" type="button"><span class="d">${JOURS[wd]} ${pad(d)}</span><span>${mid}</span>${right}</button>`;
+    const del = st === 'vide' && !e?.note ? '<span class="suppr-vide"></span>'
+      : `<button class="suppr" data-del="${k}" type="button" aria-label="Effacer le ${JOURS_L[wd]} ${d}">${ICONE_SUPPR}</button>`;
+    sem += `<div class="jour-l"><button class="${cls}" data-k="${k}" type="button"><span class="d">${JOURS[wd]} ${pad(d)}</span><span>${mid}</span>${right}</button>${del}</div>`;
   }
   flush();
   $('jours').innerHTML = html;
 }
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-$('jours').addEventListener('click', (ev) => {
+const ICONE_SUPPR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg>';
+
+$('jours').addEventListener('click', async (ev) => {
+  const del = ev.target.closest('.suppr');
+  if (del) {
+    const k = del.dataset.del;
+    const [y, m, d] = k.split('-').map(Number);
+    const jour = `${JOURS_L[new Date(y, m - 1, d).getDay()]} ${d} ${MOIS[m - 1].toLowerCase()}`;
+    if (!confirm(`Effacer la saisie du ${jour} ?
+Arrivée, départ, congé et note seront supprimés.`)) return;
+    await store.remove(k);
+    toast(`Saisie du ${jour} effacée`);
+    return;
+  }
   const b = ev.target.closest('.jour');
   if (!b) return;
   const [y, m, d] = b.dataset.k.split('-').map(Number);
@@ -264,13 +286,31 @@ $('btn-export').addEventListener('click', async () => {
       return;
     }
     const { blob, filename } = await buildMonthlyXlsx(y, m, store.entries, modele);
-    download(blob, filename);
-    toast(`${filename} téléchargé`);
+    await partagerOuTelecharger(blob, filename);
   } catch (e) {
     console.error(e);
     toast("Erreur pendant l'export : " + e.message);
   } finally { $('btn-export').disabled = false; }
 });
+
+// Téléphone : feuille de partage (Enregistrer dans Fichiers, Mail, AirDrop...),
+// plus fiable que le téléchargement dans une appli installée sur l'écran d'accueil.
+// Ordinateur : téléchargement classique dans le dossier Téléchargements.
+async function partagerOuTelecharger(blob, filename) {
+  const tactile = matchMedia('(pointer: coarse)').matches;
+  const file = new File([blob], filename, { type: blob.type });
+  if (tactile && navigator.canShare?.({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: filename });
+      return;
+    } catch (e) {
+      if (e.name === 'AbortError') return; // partage annulé par l'utilisateur
+      // NotAllowedError (geste expiré) ou autre : on bascule sur le téléchargement
+    }
+  }
+  download(blob, filename);
+  toast(`${filename} téléchargé`);
+}
 
 function download(blob, filename) {
   const a = document.createElement('a');

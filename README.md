@@ -14,6 +14,7 @@ Coût : 0 € (GitHub Pages + Firebase offre gratuite « Spark », sans carte ba
 - Saisie possible sur n'importe quelle date passée (oubli, correction)
 - **Historique** par mois : total d'heures, jours ouvrés, congés, détail par jour
   et sous-total par semaine, jours incomplets signalés. Toucher un jour ouvre sa saisie
+  ; l'icône corbeille efface la saisie d'un jour (après confirmation)
 - **Export Excel** du mois à partir de votre propre fichier modèle :
   - onglet « Décompte » : une ligne par jour du mois (28 à 31), formules d'origine
     (`D=C-B`, `E=D*24`, somme par semaine, total, « à payer »)
@@ -92,7 +93,9 @@ Le calcul de paie (cotisations, congés payés, Pajemploi) reste hors de l'appli
 
 1. Fin de mois : **Consulter Historique**, vérifier qu'aucun jour n'est « à compléter »
 2. **Exporter l'Excel du mois** : le fichier `AAMMJJ Suivi heures mmm-aa.xlsx`
-   est téléchargé, prêt pour Pajemploi
+   est créé sur l'appareil. Sur téléphone, la feuille de partage s'ouvre
+   (Enregistrer dans Fichiers, Mail, AirDrop) ; sur ordinateur, il arrive dans
+   le dossier Téléchargements
 3. Si vous modifiez le fichier à la main (nouveau tarif horaire en J28, commentaire,
    rattrapage), rechargez-le comme **nouveau modèle** : les exports suivants
    repartiront de cette version
