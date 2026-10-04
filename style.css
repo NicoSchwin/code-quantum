@@ -95,6 +95,14 @@ button { font: inherit; color: inherit; }
 /* Connexion */
 .login-txt { font-size: 17px; line-height: 1.4; margin: 30px 0 20px; }
 .msg-erreur { color: var(--rouge); font-size: 14px; }
+.msg-erreur.ok { color: var(--vert); }
+.login-form { display: flex; flex-direction: column; gap: 6px; }
+.login-form label { font-size: 14px; color: var(--gris-txt); margin-top: 8px; }
+.login-form input { font: inherit; font-size: 17px; padding: 12px 14px; border: 1px solid #c9c9c9; border-radius: 10px; }
+.login-form input:focus { outline: 2px solid var(--bleu); border-color: var(--bleu); }
+.login-form .btn { margin-top: 18px; }
+.lien-petit { font-size: 15px; align-self: flex-start; margin-top: 4px; }
+[hidden] { display: none !important; }
 
 /* Historique */
 .histo-nav { display: flex; flex-direction: column; gap: 10px; }

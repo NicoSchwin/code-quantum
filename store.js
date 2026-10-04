@@ -22,7 +22,8 @@ export const store = {
   async replaceAll(data) { return impl.replaceAll(data); },
   async getModele() { return impl.getModele(); },
   async setModele(m) { return impl.setModele(m); },
-  async signIn() { return impl.signIn?.(); },
+  async signIn(email, password) { return impl.signIn?.(email, password); },
+  async resetPassword(email) { return impl.resetPassword?.(email); },
   async signOut() { return impl.signOut?.(); },
 };
 const emit = () => listeners.forEach((fn) => fn(store));
@@ -71,19 +72,15 @@ async function firebaseImpl() {
     });
   });
 
-  // Retour d'une connexion par redirection (Safari iOS)
-  auth.getRedirectResult(a).catch(() => {});
-
+  // Connexion e-mail + mot de passe : tout se passe sur la page de l'appli,
+  // sans redirection vers un autre domaine (bloquée sur iPhone et en appli
+  // installée sur l'écran d'accueil). Les comptes sont créés dans la console.
   return {
-    async signIn() {
-      const p = new auth.GoogleAuthProvider();
-      p.setCustomParameters({ prompt: 'select_account' });
-      try { await auth.signInWithPopup(a, p); }
-      catch (e) {
-        if (['auth/popup-blocked', 'auth/operation-not-supported-in-this-environment',
-          'auth/cancelled-popup-request'].includes(e.code)) await auth.signInWithRedirect(a, p);
-        else throw e;
-      }
+    async signIn(email, password) {
+      await auth.signInWithEmailAndPassword(a, email.trim().toLowerCase(), password);
+    },
+    async resetPassword(email) {
+      await auth.sendPasswordResetEmail(a, email.trim().toLowerCase());
     },
     async signOut() { await auth.signOut(a); },
     async save(key, patch) {

@@ -43,12 +43,15 @@ Le calcul de paie (cotisations, congés payés, Pajemploi) reste hors de l'appli
 1. Aller sur <https://console.firebase.google.com> avec votre compte Google,
    **Créer un projet** (nom : `code-quantum`), désactiver Google Analytics
 2. Menu **Build > Authentication** > Commencer > onglet *Sign-in method* >
-   **Google** > Activer > Enregistrer
+   **Adresse e-mail/Mot de passe** > Activer (pas le « lien par e-mail ») > Enregistrer.
+   Puis onglet *Users* > **Ajouter un utilisateur** pour chacun des deux comptes
+   (e-mail + mot de passe). La connexion Google n'est pas utilisée : sur iPhone,
+   elle échoue (redirection bloquée entre domaines)
 3. Menu **Build > Firestore Database** > Créer une base de données >
    emplacement `europe-west9 (Paris)` > **mode production**
 4. Onglet **Règles** de Firestore : coller le contenu du fichier `firestore.rules`,
-   remplacer `ADRESSE1@gmail.com` et `ADRESSE2@gmail.com` par vos deux adresses
-   Google, puis **Publier**. Seuls ces deux comptes pourront lire ou écrire
+   remplacer `ADRESSE1@gmail.com` et `ADRESSE2@gmail.com` par les deux adresses
+   des comptes créés à l'étape 2 (en minuscules), puis **Publier**. Seuls ces deux comptes pourront lire ou écrire
 5. Roue dentée > **Paramètres du projet** > *Vos applications* > icône **`</>`** (Web),
    nom `code-quantum`, ne pas cocher Hosting. Copier le bloc `firebaseConfig`
    affiché et le coller dans `config.js` (remplacer les lignes en commentaire)
@@ -76,7 +79,7 @@ Le calcul de paie (cotisations, congés payés, Pajemploi) reste hors de l'appli
 
 ### 3. Sur chaque téléphone
 
-1. Ouvrir l'adresse GitHub Pages, **Se connecter avec Google**
+1. Ouvrir l'adresse GitHub Pages, se connecter avec son e-mail et son mot de passe
 2. Ajouter à l'écran d'accueil (Safari : Partager > *Sur l'écran d'accueil* ;
    Chrome : menu > *Ajouter à l'écran d'accueil*)
 3. Une seule fois, sur un des deux téléphones ou sur l'ordinateur :

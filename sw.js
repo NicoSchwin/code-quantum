@@ -1,6 +1,6 @@
 // Service worker : l'application s'ouvre même sans réseau.
 // Réseau d'abord (pour recevoir les mises à jour), cache en secours.
-const CACHE = 'code-quantum-v3';
+const CACHE = 'code-quantum-v4';
 const FICHIERS = ['./', 'index.html', 'style.css', 'app.js', 'store.js', 'calc.js', 'holidays.js',
   'excel.js', 'config.js', 'manifest.webmanifest', 'icons/icon-192.png',
   'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js'];

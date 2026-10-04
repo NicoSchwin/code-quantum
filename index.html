@@ -24,9 +24,17 @@
 
   <!-- Connexion (mode partagé Firebase) -->
   <section id="v-login" class="vue" hidden>
-    <p class="login-txt">Connectez-vous avec votre compte Google pour accéder aux heures partagées.</p>
-    <button class="btn" id="btn-login" type="button">Se connecter avec Google</button>
+    <p class="login-txt" id="login-txt">Connectez-vous pour accéder aux heures partagées.</p>
+    <form id="f-login" class="login-form" novalidate>
+      <label for="l-email">E-mail</label>
+      <input type="email" id="l-email" name="email" autocomplete="username" autocapitalize="off" spellcheck="false" required>
+      <label for="l-mdp">Mot de passe</label>
+      <input type="password" id="l-mdp" name="password" autocomplete="current-password" required>
+      <button class="btn" id="btn-login" type="submit">Se connecter</button>
+    </form>
+    <button class="btn" id="btn-switch" type="button" hidden>Changer de compte</button>
     <p class="msg-erreur" id="login-err"></p>
+    <button class="lien lien-petit" id="btn-oubli" type="button">Mot de passe oublié ?</button>
   </section>
 
   <!-- Saisie -->

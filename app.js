@@ -333,11 +333,39 @@ $('f-import').addEventListener('change', async (ev) => {
 });
 
 // ---------- Connexion / synchro ----------
-$('btn-login').addEventListener('click', async () => {
-  $('login-err').textContent = '';
-  if (store.status === 'refuse') { await store.signOut(); return; }
-  try { await store.signIn(); } catch (e) { $('login-err').textContent = 'Connexion impossible : ' + (e.code || e.message); }
+const ERREURS_AUTH = {
+  'auth/invalid-credential': 'E-mail ou mot de passe incorrect',
+  'auth/invalid-email': 'Adresse e-mail invalide',
+  'auth/user-disabled': 'Ce compte est désactivé',
+  'auth/too-many-requests': 'Trop de tentatives : réessayez dans quelques minutes',
+  'auth/network-request-failed': 'Pas de connexion internet',
+  'auth/missing-password': 'Saisissez le mot de passe',
+};
+const msgAuth = (e) => ERREURS_AUTH[e.code] || `Connexion impossible (${e.code || e.message})`;
+function loginMsg(txt, ok = false) {
+  $('login-err').textContent = txt;
+  $('login-err').classList.toggle('ok', ok);
+}
+
+$('f-login').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const email = $('l-email').value, mdp = $('l-mdp').value;
+  if (!email || !mdp) { loginMsg('Saisissez votre e-mail et votre mot de passe'); return; }
+  loginMsg('');
+  $('btn-login').disabled = true;
+  try { await store.signIn(email, mdp); $('l-mdp').value = ''; }
+  catch (e) { loginMsg(msgAuth(e)); }
+  finally { $('btn-login').disabled = false; }
 });
+$('btn-oubli').addEventListener('click', async () => {
+  const email = $('l-email').value.trim();
+  if (!email) { loginMsg("Saisissez d'abord votre e-mail ci-dessus"); $('l-email').focus(); return; }
+  try {
+    await store.resetPassword(email);
+    loginMsg(`Si ce compte existe, un e-mail de réinitialisation a été envoyé à ${email}`, true);
+  } catch (e) { loginMsg(msgAuth(e)); }
+});
+$('btn-switch').addEventListener('click', async () => { loginMsg(''); await store.signOut(); });
 $('btn-logout').addEventListener('click', async () => { await store.signOut(); });
 
 function renderSync() {
@@ -363,9 +391,12 @@ store.onChange(() => {
   renderSync();
   const needLogin = store.mode === 'firebase' && (store.status === 'deconnecte' || store.status === 'refuse');
   if (needLogin) {
-    $('login-err').textContent = store.status === 'refuse'
-      ? `Le compte ${store.user?.email || ''} n'est pas autorisé. Déconnectez-vous et choisissez un autre compte.` : '';
-    $('btn-login').textContent = store.status === 'refuse' ? 'Changer de compte' : 'Se connecter avec Google';
+    const refuse = store.status === 'refuse';
+    $('f-login').hidden = refuse;
+    $('btn-oubli').hidden = refuse;
+    $('btn-switch').hidden = !refuse;
+    $('login-txt').hidden = refuse;
+    if (refuse) loginMsg(`Le compte ${store.user?.email || ''} n'est pas autorisé dans les règles Firestore.`);
     lastView = 'v-login'; show('v-login');
     return;
   }
